@@ -1,17 +1,20 @@
-<template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
-  </div>
+<template lang="pug">
+  div#app
+    img(v-for="(item,index) in images" v-lazy="item")
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
-
 export default {
   name: "App",
-  components: {
-    HelloWorld
+  data() {
+    return {
+      images: [
+        "https://article-fd.zol-img.com.cn/t_s627x449/g6/M00/07/00/ChMkKl-7j82IM9KTAAPn0WO6WtEAAFubAPtVd4AA-fp664.png",
+        "https://article-fd.zol-img.com.cn/t_s640x560/g6/M00/07/00/ChMkKV-7j8yIfRybAAeUzN2S-GcAAFubAPUqlEAB5Tk317.png",
+        "https://article-fd.zol-img.com.cn/t_s640x359/g6/M00/07/00/ChMkKV-7j8qICSISAATqB3abUOIAAFubQP1QyMABOof216.png",
+        "https://article-fd.zol-img.com.cn/t_s640x481/g6/M00/07/00/ChMkKl-7j8qISTtxAAYwGecnqdsAAFubQPr_JYABjAx866.png"
+      ]
+    };
   }
 };
 </script>

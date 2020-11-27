@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      ul,
+      body {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+      }
+      ul {
+        margin-left: 200px;
+      }
+      li {
+        margin-top: 100px;
+      }
+      img {
+        height: 300px;
+      }
+      .window {
+        position: fixed;
+        top: 30px;
+        left: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="window">
+        浏览器可视高度：
+        {{innerHeight}}
+      </div>
+      <ul>
+        <li ref="images" v-for="(item,index) in images" :key="index">
+          <div>
+            <span>top:{{item.top}} </span>
+            <span>在视图范围内：{{item.isInView}}</span>
+          </div>
+          <img :src="item.url" alt="" />
+        </li>
+      </ul>
+    </div>
+    <script src="./node_modules/vue/dist/vue.js"></script>
+    <script>
+      let images = [
+        "https://article-fd.zol-img.com.cn/t_s627x449/g6/M00/07/00/ChMkKl-7j82IM9KTAAPn0WO6WtEAAFubAPtVd4AA-fp664.png",
+        "https://article-fd.zol-img.com.cn/t_s640x560/g6/M00/07/00/ChMkKV-7j8yIfRybAAeUzN2S-GcAAFubAPUqlEAB5Tk317.png",
+        "https://article-fd.zol-img.com.cn/t_s640x359/g6/M00/07/00/ChMkKV-7j8qICSISAATqB3abUOIAAFubQP1QyMABOof216.png",
+      ];
+      images = images.map((item) => ({ top: 0, isInView: false, url: item }));
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          images,
+          innerHeight: 0,
+        },
+        mounted() {
+          this.innerHeight = window.innerHeight;
+          this.getImgTop();
+          window.onscroll = this.getImgTop;
+        },
+        methods: {
+          getImgTop() {
+            Vue.nextTick(() => {
+              this.$refs.images.forEach((item, index) => {
+                const curImage = this.images[index];
+                curImage.top = item.getBoundingClientRect().top;
+                curImage.isInView = curImage.top < this.innerHeight;
+              });
+            });
+          },
+        },
+      });
+      // import HelloWorld from "./components/HelloWorld.vue";
+let images = [
+  "https://article-fd.zol-img.com.cn/t_s627x449/g6/M00/07/00/ChMkKl-7j82IM9KTAAPn0WO6WtEAAFubAPtVd4AA-fp664.png",
+  "https://article-fd.zol-img.com.cn/t_s640x560/g6/M00/07/00/ChMkKV-7j8yIfRybAAeUzN2S-GcAAFubAPUqlEAB5Tk317.png",
+  "https://article-fd.zol-img.com.cn/t_s640x359/g6/M00/07/00/ChMkKV-7j8qICSISAATqB3abUOIAAFubQP1QyMABOof216.png",
+  "https://article-fd.zol-img.com.cn/t_s640x481/g6/M00/07/00/ChMkKl-7j8qISTtxAAYwGecnqdsAAFubQPr_JYABjAx866.png"
+  // "https://article-fd.zol-img.com.cn/t_s640x709/g6/M00/07/00/ChMkKl-7j8yIWZXlAAU_dwj8c0AAAFubAPNuMAABT-P182.png",
+  // "https://article-fd.zol-img.com.cn/t_s640x496/g6/M00/07/00/ChMkKV-7j82IaXWcAAf1A1qo0-gAAFubAPcPzUAB_Ub040.png",
+  // "https://article-fd.zol-img.com.cn/t_s640x286/g6/M00/07/00/ChMkKV-7j8qIRV9LAAC1WTJ8wRUAAFubQP6LUIAALVx696.jpg",
+];
+console.log(images);
+    </script>
+  </body>
+</html>
