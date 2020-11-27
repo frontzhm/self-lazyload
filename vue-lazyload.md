@@ -70,7 +70,74 @@ const isInView = top<windowHeight
 
 ![lazyload1](https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/lazyload1.png)
 
+## 实现图片懒加载
 
+架子已经搭完，重点突破插件内部怎么写
+
+在逻辑分析完之后，基本一步步写就行，重点是初次渲染和滚动的时候再次渲染。
+
+每个图片的状态，是会动态变化的，这边为了简化，只写了两种状态的判断，`wait`和`loading`，`wait`就是默认状态，显示加载图标，`loading`是加载图片。
+
+```js
+// vue-lazyload/index.js
+import { throttle } from "lodash";
+export default {
+  install(Vue, options) {
+    class ImageReactive {
+      constructor({ el, url, options }) {
+        this.el = el;
+        this.url = url;
+        this.options = options;
+        this.state = "wait";
+      }
+      checkInView() {
+        const windowHeight = window.innerHeight;
+        const { top } = this.el.getBoundingClientRect();
+        return top < windowHeight * this.options.preLoad;
+      }
+      elRender() {
+        // 如果不是等待状态，则图片已经加载过，不需要再次渲染了
+        if (this.state !== "wait") {
+          return;
+        }
+        // 等待状态的图片，看下在不在视图内，在的话更新状态
+        const isInView = this.checkInView();
+        isInView && (this.state = "loading");
+        console.log(this.state, this.el.getBoundingClientRect().top);
+        // 不同的状态对应不同的操作
+        switch (this.state) {
+          case "wait":
+            this.el.src = this.options.loading;
+            this.el.dataset.src = this.url;
+            break;
+          case "loading":
+            this.el.src = this.url;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    // img(v-lazy="item.src")
+    // lazy是指令名称 el是img这个元素 binding是{value:item.src}
+    Vue.directive("lazy", function(el, binding) {
+      const img = new ImageReactive({ el, url: binding.value, options });
+      // 初始的时候，先渲染一次
+      Vue.nextTick(() => {
+        img.elRender();
+      });
+      // 每次滚动，再渲染一次，这里注意滚动事件需要节流
+      window.addEventListener(
+        "scroll",
+        throttle(() => {
+          img.elRender();
+        }, 1000)
+      );
+    });
+  }
+};
+
+```
 
 
 ## 代码
@@ -183,10 +250,11 @@ main.js
 ```js
 import Vue from "vue";
 import App from "./App.vue";
+import loading from "./loading.gif";
 
 // 这里添加了自己写的VueLazyload
 import VueLazyload from "./vue-lazyload";
-Vue.use(VueLazyload, { preload: 1.3 });
+Vue.use(VueLazyload, { preLoad: 1.3, loading });
 
 Vue.config.productionTip = false;
 
@@ -199,9 +267,10 @@ new Vue({
 App.vue
 
 ```vue
+<!-- App.vue -->
 <template lang="pug">
   div#app
-    img(v-for="(item,index) in images" v-lazy="item")
+    img( v-for="(item,index) in images" v-lazy="item")
 </template>
 
 <script>
@@ -213,12 +282,23 @@ export default {
         "https://article-fd.zol-img.com.cn/t_s627x449/g6/M00/07/00/ChMkKl-7j82IM9KTAAPn0WO6WtEAAFubAPtVd4AA-fp664.png",
         "https://article-fd.zol-img.com.cn/t_s640x560/g6/M00/07/00/ChMkKV-7j8yIfRybAAeUzN2S-GcAAFubAPUqlEAB5Tk317.png",
         "https://article-fd.zol-img.com.cn/t_s640x359/g6/M00/07/00/ChMkKV-7j8qICSISAATqB3abUOIAAFubQP1QyMABOof216.png",
-        "https://article-fd.zol-img.com.cn/t_s640x481/g6/M00/07/00/ChMkKl-7j8qISTtxAAYwGecnqdsAAFubQPr_JYABjAx866.png"
+        "https://article-fd.zol-img.com.cn/t_s640x481/g6/M00/07/00/ChMkKl-7j8qISTtxAAYwGecnqdsAAFubQPr_JYABjAx866.png",
+        "https://article-fd.zol-img.com.cn/t_s640x709/g6/M00/07/00/ChMkKl-7j8yIWZXlAAU_dwj8c0AAAFubAPNuMAABT-P182.png",
+        "https://article-fd.zol-img.com.cn/t_s640x496/g6/M00/07/00/ChMkKV-7j82IaXWcAAf1A1qo0-gAAFubAPcPzUAB_Ub040.png",
+        "https://article-fd.zol-img.com.cn/t_s640x286/g6/M00/07/00/ChMkKV-7j8qIRV9LAAC1WTJ8wRUAAFubQP6LUIAALVx696.jpg"
       ]
     };
   }
 };
 </script>
+
+<style>
+
+img {
+  display: block;
+  height: 400px;
+}
+</style>
 
 
 ```
