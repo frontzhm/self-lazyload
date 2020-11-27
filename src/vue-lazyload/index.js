@@ -16,9 +16,7 @@ export default {
       }
       elRender() {
         // 如果不是等待状态，则图片已经加载过，不需要再次渲染了
-        if (this.state !== "wait") {
-          return;
-        }
+        if (this.state !== "wait") return;
         // 等待状态的图片，看下在不在视图内，在的话更新状态
         const isInView = this.checkInView();
         isInView && (this.state = "loading");

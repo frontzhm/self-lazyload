@@ -13,7 +13,6 @@ import VueLazyload from 'vue-lazyload'
 
 Vue.use(VueLazyload,{
   preLoad: 1.3,
-  error: 'dist/error.png',
   loading: 'dist/loading.gif',
 })
 
@@ -23,7 +22,7 @@ Vue.use(VueLazyload,{
 
 核心逻辑是： 图片在视图范围内，就显示，否则只显示加载图标。而图片在不在视图范围内，是动态变化的，比如滚动的时候，图片就可能从视图外到视图内。
 
-在提取一层核心：怎么判断一个元素在不在视图范围内？
+再提取一层核心：怎么判断一个元素在不在视图范围内？
 
 ## 怎么判断一个元素在不在视图范围内
 
@@ -78,67 +77,9 @@ const isInView = top<windowHeight
 
 每个图片的状态，是会动态变化的，这边为了简化，只写了两种状态的判断，`wait`和`loading`，`wait`就是默认状态，显示加载图标，`loading`是加载图片。
 
-```js
-// vue-lazyload/index.js
-import { throttle } from "lodash";
-export default {
-  install(Vue, options) {
-    class ImageReactive {
-      constructor({ el, url, options }) {
-        this.el = el;
-        this.url = url;
-        this.options = options;
-        this.state = "wait";
-      }
-      checkInView() {
-        const windowHeight = window.innerHeight;
-        const { top } = this.el.getBoundingClientRect();
-        return top < windowHeight * this.options.preLoad;
-      }
-      elRender() {
-        // 如果不是等待状态，则图片已经加载过，不需要再次渲染了
-        if (this.state !== "wait") {
-          return;
-        }
-        // 等待状态的图片，看下在不在视图内，在的话更新状态
-        const isInView = this.checkInView();
-        isInView && (this.state = "loading");
-        console.log(this.state, this.el.getBoundingClientRect().top);
-        // 不同的状态对应不同的操作
-        switch (this.state) {
-          case "wait":
-            this.el.src = this.options.loading;
-            this.el.dataset.src = this.url;
-            break;
-          case "loading":
-            this.el.src = this.url;
-            break;
-          default:
-            break;
-        }
-      }
-    }
-    // img(v-lazy="item.src")
-    // lazy是指令名称 el是img这个元素 binding是{value:item.src}
-    Vue.directive("lazy", function(el, binding) {
-      const img = new ImageReactive({ el, url: binding.value, options });
-      // 初始的时候，先渲染一次
-      Vue.nextTick(() => {
-        img.elRender();
-      });
-      // 每次滚动，再渲染一次，这里注意滚动事件需要节流
-      window.addEventListener(
-        "scroll",
-        throttle(() => {
-          img.elRender();
-        }, 1000)
-      );
-    });
-  }
-};
+![lazyload2](https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/lazyload2.gif)
 
-```
-
+![lazyload3](https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/lazyload3.png)
 
 ## 代码
 
@@ -302,3 +243,68 @@ img {
 
 
 ```
+
+### 代码：懒加载图片
+
+vue-lazyload/index.js
+
+```js
+// vue-lazyload/index.js
+import { throttle } from "lodash";
+export default {
+  install(Vue, options) {
+    class ImageReactive {
+      constructor({ el, url, options }) {
+        this.el = el;
+        this.url = url;
+        this.options = options;
+        this.state = "wait";
+      }
+      checkInView() {
+        const windowHeight = window.innerHeight;
+        const { top } = this.el.getBoundingClientRect();
+        return top < windowHeight * this.options.preLoad;
+      }
+      elRender() {
+        // 如果不是等待状态，则图片已经加载过，不需要再次渲染了
+        if (this.state !== "wait") return;
+        // 等待状态的图片，看下在不在视图内，在的话更新状态
+        const isInView = this.checkInView();
+        isInView && (this.state = "loading");
+        console.log(this.state, this.el.getBoundingClientRect().top);
+        // 不同的状态对应不同的操作
+        switch (this.state) {
+          case "wait":
+            this.el.src = this.options.loading;
+            this.el.dataset.src = this.url;
+            break;
+          case "loading":
+            this.el.src = this.url;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    // img(v-lazy="item.src")
+    // lazy是指令名称 el是img这个元素 binding是{value:item.src}
+    Vue.directive("lazy", function(el, binding) {
+      const img = new ImageReactive({ el, url: binding.value, options });
+      // 初始的时候，先渲染一次
+      Vue.nextTick(() => {
+        img.elRender();
+      });
+      // 每次滚动，再渲染一次，这里注意滚动事件需要节流
+      window.addEventListener(
+        "scroll",
+        throttle(() => {
+          img.elRender();
+        }, 1000)
+      );
+    });
+  }
+};
+
+```
+
+其他两个文件依旧。
