@@ -1,24 +1,10 @@
 # self-lazyload
 
-## Project setup
-```
-npm install
-```
+[手动实现vue-lazyload的核心逻辑](https://juejin.cn/post/6899749842407391240/)
 
-### Compiles and hot-reloads for development
-```
+```shell
+git clone git@github.com:frontzhm/self-lazyload.git
+cd self-lazyload
+npm install
 npm run serve
 ```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
