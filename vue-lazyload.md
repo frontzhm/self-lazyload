@@ -63,8 +63,12 @@ const isInView = top<windowHeight
 如等待状态、加载状态、错误状态。
 
 接下来，逐步写插件，一点都不知道插件是怎么写的，可以先看看[怎么写一个插件](https://juejin.cn/post/6899639171124559886)。
+
 ## 初始用起来
 
+先将插件正确引入进来，并能够使用`v-lazy`指令。
+
+![lazyload1](https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/lazyload1.png)
 
 
 
