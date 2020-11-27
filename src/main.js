@@ -1,10 +1,11 @@
 import Vue from "vue";
 import App from "./App.vue";
 
+// 这里添加了自己写的VueLazyload
 import VueLazyload from "./vue-lazyload";
+Vue.use(VueLazyload, { preload: 1.3 });
 
 Vue.config.productionTip = false;
-Vue.use(VueLazyload, { preload: 1.3 });
 
 new Vue({
   render: h => h(App)

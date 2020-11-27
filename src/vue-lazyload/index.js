@@ -1,3 +1,4 @@
+// vue-lazyload/index.js
 export default {
   install(Vue, options) {
     console.log({ Vue, options });

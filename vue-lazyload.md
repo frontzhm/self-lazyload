@@ -55,14 +55,18 @@ const isInView = top<windowHeight
 看此动画，就明白了，注意看右边代码区域的`false`，代码在文末。
 ![innerHeight](https://blog-huahua.oss-cn-beijing.aliyuncs.com/blog/code/innerHeight.gif)
 
-## 开工写插件
-
 关键的难点搞定了，继续写插件，哦不，继续分析插件。
 
 每个图片在不在视图范围内，主体是每个图片，按照对象方式编程的话，这边可以创建一个图片类。
 
 这样每个图片示例，只要在合适的时机判断自己在不在视图范围内即可。同时，每个图片应该有状态，
 如等待状态、加载状态、错误状态。
+
+接下来，逐步写插件，一点都不知道插件是怎么写的，可以先看看[怎么写一个插件](https://juejin.cn/post/6899639171124559886)。
+## 初始用起来
+
+
+
 
 
 ## 代码
@@ -149,5 +153,68 @@ const isInView = top<windowHeight
     </script>
   </body>
 </html>
+
+```
+
+### 代码：初始用起来
+
+vue-lazyload/index.js  
+
+```js
+// vue-lazyload/index.js
+export default {
+  install(Vue, options) {
+    console.log({ Vue, options });
+    // img(v-lazy="item.src")  lazy是指令名称 el是img这个元素 binding是{value:item.src}
+    Vue.directive("lazy", function(el, binding) {
+      console.log({ el, binding });
+    });
+  }
+};
+
+```
+
+main.js
+
+```js
+import Vue from "vue";
+import App from "./App.vue";
+
+// 这里添加了自己写的VueLazyload
+import VueLazyload from "./vue-lazyload";
+Vue.use(VueLazyload, { preload: 1.3 });
+
+Vue.config.productionTip = false;
+
+new Vue({
+  render: h => h(App)
+}).$mount("#app");
+
+```
+
+App.vue
+
+```vue
+<template lang="pug">
+  div#app
+    img(v-for="(item,index) in images" v-lazy="item")
+</template>
+
+<script>
+export default {
+  name: "App",
+  data() {
+    return {
+      images: [
+        "https://article-fd.zol-img.com.cn/t_s627x449/g6/M00/07/00/ChMkKl-7j82IM9KTAAPn0WO6WtEAAFubAPtVd4AA-fp664.png",
+        "https://article-fd.zol-img.com.cn/t_s640x560/g6/M00/07/00/ChMkKV-7j8yIfRybAAeUzN2S-GcAAFubAPUqlEAB5Tk317.png",
+        "https://article-fd.zol-img.com.cn/t_s640x359/g6/M00/07/00/ChMkKV-7j8qICSISAATqB3abUOIAAFubQP1QyMABOof216.png",
+        "https://article-fd.zol-img.com.cn/t_s640x481/g6/M00/07/00/ChMkKl-7j8qISTtxAAYwGecnqdsAAFubQPr_JYABjAx866.png"
+      ]
+    };
+  }
+};
+</script>
+
 
 ```
